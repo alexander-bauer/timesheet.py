@@ -6,6 +6,8 @@ import os.path
 
 FILEPATH = os.path.expanduser("~/.timesheets")
 EPOCH = date(1970, 1, 1)        # UNIX EPOCH
+CURRENTDATE = datetime.now().date()
+
 
 CHECK_IN = "in"
 CHECK_OUT = "out"
@@ -35,11 +37,11 @@ class Workperiod:
         # Return the difference of the times in and out. The times
         # should be pure datetime.time objects, so we convert them to
         # datetime objects starting from the UNIX Epoch.
-        return datetime.combine(EPOCH, this.outtime) \
-            - datetime.combine(EPOCH, this.intime)
+        return this.timeout - this.timein
 
     def completewith(this, string):
-        this.timeout = datetime.strptime(string, "%H:%M")
+        this.timeout = datetime.combine(CURRENTDATE,
+                        datetime.strptime(string, "%H:%M"))
 
     def __init__(this, timein, timeout = None):
         this.timein = timein
@@ -50,9 +52,11 @@ def parseWorkperiod(cls, string):
     # Split the string into a timein and timeout, if applicable,
     # and parse them. Timeout can be omitted.
     splitstring = string.split("-")
-    timein = datetime.strptime(splitstring[0], "%H:%M").time()
+    timein = datetime.combine(CURRENTDATE,
+                    datetime.strptime(splitstring[0], "%H:%M").time())
     if len(splitstring) > 1:
-        timeout = datetime.strptime(splitstring[1], "%H:%M").time()
+        timeout = datetime.combine(CURRENTDATE,
+                    datetime.strptime(splitstring[1], "%H:%M").time())
     else:
         timeout = None
 
