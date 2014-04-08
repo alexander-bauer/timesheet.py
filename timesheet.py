@@ -7,7 +7,16 @@ import os.path
 FILEPATH = os.path.expanduser("~/.timesheets")
 EPOCH = date(1970, 1, 1)        # UNIX EPOCH
 
+CHECK_IN = "in"
+CHECK_OUT = "out"
+CHECK_HIST = "hist"
+
 class Timesheet:
+    def completelatestwith(this, string):
+        # Get the last workperiod and pass it the string to complete
+        # it with.
+        this.workperiods[-1].completewith(string)
+
     def newperiod(this, period):
         this.workperiods.append(period)
         if not period.iscomplete():
@@ -28,6 +37,9 @@ class Workperiod:
         # datetime objects starting from the UNIX Epoch.
         return datetime.combine(EPOCH, this.outtime) \
             - datetime.combine(EPOCH, this.intime)
+
+    def completewith(this, string):
+        this.timeout = datetime.strptime(string, "%H:%M")
 
     def __init__(this, timein, timeout = None):
         this.timein = timein
@@ -67,7 +79,8 @@ def parseflags(args):
                         to record time for")
 
     # Determine whether the type is in or out.
-    parser.add_argument("check", action="store", choices=["in", "out"],
+    parser.add_argument("check", action="store",
+                        choices=[CHECK_IN, CHECK_OUT, CHECK_HIST],
                         help="check in or out")
 
     # Get the time at which to check in or out.
