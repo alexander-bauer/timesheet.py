@@ -35,11 +35,16 @@ class Workperiod:
 
 @classmethod
 def parseWorkperiod(cls, string):
-    if "-" in string:
-        splitstring = string.split("-")
-        timein = datetime.strptime(splitstring[0], "%H:%M").time()
+    # Split the string into a timein and timeout, if applicable,
+    # and parse them. Timeout can be omitted.
+    splitstring = string.split("-")
+    timein = datetime.strptime(splitstring[0], "%H:%M").time()
+    if len(splitstring) > 1:
         timeout = datetime.strptime(splitstring[1], "%H:%M").time()
-        return cls(timein, timeout)
+    else:
+        timeout = None
+
+    return cls(timein, timeout)
 
 Workperiod.parse = parseWorkperiod
 
