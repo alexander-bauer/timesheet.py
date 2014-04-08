@@ -43,6 +43,11 @@ class Workperiod:
         this.timeout = datetime.combine(CURRENTDATE,
                         datetime.strptime(string, "%H:%M"))
 
+    def __str__(this):
+        return "{}: {}-{}".format(this.timein.date(),
+                                 this.timein.time(),
+                                 this.timeout.time())
+
     def __init__(this, timein, timeout = None):
         this.timein = timein
         this.timeout = timeout
