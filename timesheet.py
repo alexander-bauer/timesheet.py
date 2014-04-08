@@ -2,9 +2,9 @@
 
 import sys, argparse
 from datetime import datetime, date, time
-from os.path import expanduser
+import os.path
 
-FILEPATH = expanduser("~/.timesheets")
+FILEPATH = os.path.expanduser("~/.timesheets")
 EPOCH = date(1970, 1, 1)        # UNIX EPOCH
 
 class Timesheet:
