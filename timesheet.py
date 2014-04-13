@@ -29,6 +29,14 @@ class Timesheet:
         this.workperiods = workperiods
         this.activeperiod = None
 
+
+@classmethod
+def latestTimesheet(cls, date=CURRENTDATE):
+    return datetime(year=2014, month=4, day=6)
+
+Timesheet.latest = latestTimesheet
+
+
 class Workperiod:
     def iscomplete(this):
         return (this.timein != None and this.timeout != None)
