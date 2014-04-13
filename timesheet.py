@@ -24,6 +24,20 @@ class Timesheet:
         if not period.iscomplete():
             this.activeperiod = None
 
+    def save(this, filename):
+        # Open the relevant file for writing.
+        with open(filename, "w") as f:
+            # Write the metadate as the header.
+            f.write(this.date.strftime("%Y-%m-%d\n"))
+
+            # Write all of the workperiods.
+            for wp in this.workperiods:
+                f.write(wp.timein.strftime(Workperiod.__timefmt__))
+                if wp.timeout != None:
+                    f.write(" " +
+                            wp.timeout.strftime(Workperiod.__timefmt__)
+                            + "\n")
+
     def __init__(this, date, workperiods = []):
         this.date = date
         this.workperiods = workperiods
