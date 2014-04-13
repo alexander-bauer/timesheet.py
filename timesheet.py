@@ -36,6 +36,39 @@ def latestTimesheet(cls, date=CURRENTDATE):
 
 Timesheet.latest = latestTimesheet
 
+@classmethod
+def loadTimesheet(cls, filename):
+    # Open the file.
+    with open(filename, "r") as f:
+        # Begin setting up the timesheet by reading the first line.
+        metadate = datetime.strptime(f.readline().strip(), "%Y-%m-%d")
+        newts = Timesheet(metadate)
+
+        # Now that the timesheet is set up, we can fill out the rest
+        # of the Workperiod items.
+        for line in f:
+            print line
+            # Declare an empty workperiod to begin filling out.
+            lineparts = line.split()
+
+            if len(lineparts) >= 2:
+                timein = datetime.strptime(" ".join(lineparts[0:2]),
+                                           Workperiod.__timefmt__)
+
+            if len(lineparts) >= 4:
+                timeout = datetime.strptime(" ".join(lineparts[2:4]),
+                                            Workperiod.__timefmt__)
+            else:
+                timeout = None
+
+            if len(lineparts) >= 5:
+                descriptor = lineparts[4]
+
+            newts.workperiods.append(Workperiod(timein, timeout))
+
+        return newts
+
+Timesheet.load = loadTimesheet
 
 class Workperiod:
     def iscomplete(this):
@@ -59,6 +92,9 @@ class Workperiod:
     def __init__(this, timein, timeout = None):
         this.timein = timein
         this.timeout = timeout
+
+Workperiod.__timefmt__ = "%Y-%m-%d %H:%M"
+Workperiod.__shorttimeft__ = "%H:%M"
 
 @classmethod
 def parseWorkperiod(cls, string):
