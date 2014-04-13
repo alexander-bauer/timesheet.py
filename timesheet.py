@@ -82,7 +82,10 @@ class Workperiod:
 
     def completewith(this, string):
         this.timeout = datetime.combine(CURRENTDATE,
-                        datetime.strptime(string, "%H:%M"))
+            datetime.strptime(string, Workperiod.__shorttimefmt__))
+
+    def __repr__(this):
+        return "\"" + this.__str__() + "\""
 
     def __str__(this):
         return "{}: {}-{}".format(this.timein.date(),
