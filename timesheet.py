@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-import sys, argparse
-from datetime import datetime, date, time
-import os.path
+import sys, argparse, os.path, json
+from datetime import datetime, date, time, timedelta
+
 
 FILEPATH = os.path.expanduser("~/.timesheets")
 EPOCH = date(1970, 1, 1)        # UNIX EPOCH
@@ -12,6 +12,7 @@ CURRENTDATE = datetime.now().date()
 CHECK_IN = "in"
 CHECK_OUT = "out"
 CHECK_HIST = "hist"
+SHOW_READABLE = "show"
 
 class Timesheet:
     def completelatestwith(this, string):
@@ -37,6 +38,33 @@ class Timesheet:
                     f.write(" " +
                             wp.timeout.strftime(Workperiod.__timefmt__)
                             + "\n")
+
+    def workperiods_on(this, date):
+        return filter(lambda wp: wp.timein.date() == date,
+                      this.workperiods)
+
+    def total_on_date(this, date):
+        sumtime = timedelta()
+        for wp in this.workperiods_on(date): sumtime += wp.sumtime()
+        return sumtime
+
+    def __str__(this):
+        as_str_list = []
+
+        # Iterate over each day starting from the timesheet date.
+        for offset in xrange(0, 14):
+            # Adding a timedelta makes the date into a datetime, so we
+            # need to strip it down again.
+            curdate = (this.date + timedelta(days=offset)).date()
+
+            workperiods = this.workperiods_on(curdate)
+
+            as_str_list.append("{0} {1} {2}".format(
+                curdate, this.total_on_date(curdate),
+                " ".join([wp.short_str() for wp in workperiods])))
+
+
+        return "\n".join(as_str_list)
 
     def __init__(this, date, workperiods = []):
         this.date = date
@@ -98,6 +126,10 @@ class Workperiod:
         this.timeout = datetime.combine(CURRENTDATE,
             datetime.strptime(string, Workperiod.__shorttimefmt__))
 
+    def short_str(this):
+        return "{}-{}".format(this.timein.time(),
+                              this.timeout.time())
+
     def __repr__(this):
         return "\"" + this.__str__() + "\""
 
@@ -150,7 +182,8 @@ def parseflags(args):
 
     # Determine whether the type is in or out.
     parser.add_argument("check", action="store",
-                        choices=[CHECK_IN, CHECK_OUT, CHECK_HIST],
+                        choices=[CHECK_IN, CHECK_OUT, CHECK_HIST,
+                                 SHOW_READABLE],
                         help="check in or out")
 
     # Get the time at which to check in or out.
