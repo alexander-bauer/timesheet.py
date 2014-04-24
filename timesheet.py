@@ -36,8 +36,10 @@ class Timesheet:
                 f.write(wp.timein.strftime(Workperiod.__timefmt__))
                 if wp.timeout != None:
                     f.write(" " +
-                            wp.timeout.strftime(Workperiod.__timefmt__)
-                            + "\n")
+                            wp.timeout.strftime(Workperiod.__timefmt__))
+
+                # Always append a trailing newline.
+                f.write("\n")
 
     def workperiods_on(this, date):
         return filter(lambda wp: wp.timein.date() == date,
@@ -89,7 +91,6 @@ def loadTimesheet(cls, filename):
         # Now that the timesheet is set up, we can fill out the rest
         # of the Workperiod items.
         for line in f:
-            print line
             # Declare an empty workperiod to begin filling out.
             lineparts = line.split()
 
