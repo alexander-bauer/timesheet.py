@@ -198,10 +198,10 @@ def main(argc, argv):
     elif flags.check == CHECK_HIST:
         wp = Workperiod.parse(flags.time)
         if not wp.iscomplete():
-            print "Please give a full period in HH:MM-HH:MM format."
+            print "Please give a full period in HH:MM-HH:MM format"
             return 1
 
-        print "Entering past time: {}".format(wp.short_str())
+        print "Entering period: {}".format(wp.short_str())
         ts.newperiod(Workperiod.parse(flags.time))
         ts.save(tsfile)
 
