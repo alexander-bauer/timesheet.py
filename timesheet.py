@@ -181,6 +181,10 @@ def main(argc, argv):
     tsfile = os.path.join(flags.file, tsdate.strftime("%Y-%m-%d"))
     ts = Timesheet.load(tsfile)
 
+    if flags.dry_run:
+        print "Enabling dry run"
+        ts.save = dry_save
+
     if flags.check == CHECK_IN:
         print "Checking in at {}".format(flags.time)
         ts.newperiod(Workperiod.parse(flags.time))
@@ -218,6 +222,10 @@ def parseflags(args):
                         required=False, help="department or descriptor \
                         to record time for")
 
+    # Trigger a dry-run, and disable saving.
+    parser.add_argument("--dry-run", action="store_true",
+                        help="disable file saving")
+
     # Determine whether the type is in or out.
     parser.add_argument("check", action="store",
                         choices=[CHECK_IN, CHECK_OUT, CHECK_HIST,
@@ -230,6 +238,9 @@ def parseflags(args):
                         help="time to check in or out at")
 
     return parser.parse_args(args)
+
+def dry_save(path):
+    print "Pretending to save to {}".format(path)
 
 def promptdefault(prompt, default = None):
     # Attach some suffix to the end of the prompt. If the default is
