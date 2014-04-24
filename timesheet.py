@@ -15,24 +15,24 @@ CHECK_HIST = "hist"
 SHOW_READABLE = "show"
 
 class Timesheet:
-    def completelatestwith(this, string):
+    def completelatestwith(self, string):
         # Get the last workperiod and pass it the string to complete
         # it with.
-        this.workperiods[-1].completewith(string)
+        self.workperiods[-1].completewith(string)
 
-    def newperiod(this, period):
-        this.workperiods.append(period)
+    def newperiod(self, period):
+        self.workperiods.append(period)
         if not period.iscomplete():
-            this.activeperiod = None
+            self.activeperiod = None
 
-    def save(this, filename):
+    def save(self, filename):
         # Open the relevant file for writing.
         with open(filename, "w") as f:
             # Write the metadate as the header.
-            f.write(this.date.strftime("%Y-%m-%d\n"))
+            f.write(self.date.strftime("%Y-%m-%d\n"))
 
             # Write all of the workperiods.
-            for wp in this.workperiods:
+            for wp in self.workperiods:
                 f.write(wp.timein.strftime(Workperiod.__timefmt__))
                 if wp.timeout != None:
                     f.write(" " +
@@ -41,30 +41,30 @@ class Timesheet:
                 # Always append a trailing newline.
                 f.write("\n")
 
-    def complete_workperiods_on(this, date):
+    def complete_workperiods_on(self, date):
         # Ensure that the workperiod is both complete and for the
         # given date.
         return filter(lambda wp: wp.timeout and wp.timein.date() == date,
-                      this.workperiods)
+                      self.workperiods)
 
-    def total_on_date(this, date):
+    def total_on_date(self, date):
         sumtime = timedelta()
-        for wp in this.complete_workperiods_on(date):
+        for wp in self.complete_workperiods_on(date):
             sumtime += wp.sumtime()
         return sumtime
 
-    def __str__(this):
+    def __str__(self):
         as_str_list = []
 
         # Iterate over each day starting from the timesheet date.
         for offset in xrange(0, 14):
             # Adding a timedelta makes the date into a datetime, so we
             # need to strip it down again.
-            curdate = (this.date + timedelta(days=offset)).date()
+            curdate = (self.date + timedelta(days=offset)).date()
 
-            workperiods = this.complete_workperiods_on(curdate)
+            workperiods = self.complete_workperiods_on(curdate)
             duration_formatted = ":".join(str(
-                this.total_on_date(curdate)).split(":")[0:2])
+                self.total_on_date(curdate)).split(":")[0:2])
 
             as_str_list.append("{0} {1} {2}".format(
                 curdate, duration_formatted,
@@ -72,10 +72,10 @@ class Timesheet:
 
         return "\n".join(as_str_list)
 
-    def __init__(this, date, workperiods = []):
-        this.date = date
-        this.workperiods = workperiods
-        this.activeperiod = None
+    def __init__(self, date, workperiods = []):
+        self.date = date
+        self.workperiods = workperiods
+        self.activeperiod = None
 
 
 @classmethod
@@ -118,41 +118,41 @@ def loadTimesheet(cls, filename):
 Timesheet.load = loadTimesheet
 
 class Workperiod:
-    def iscomplete(this):
-        return (this.timein != None and this.timeout != None)
+    def iscomplete(self):
+        return (self.timein != None and self.timeout != None)
 
-    def sumtime(this):
+    def sumtime(self):
         # If the times are not both defined, return 0.
-        if not this.iscomplete():
+        if not self.iscomplete():
             return timedelta(seconds=0)
 
         # Return the difference of the times in and out. The times
         # should be pure datetime.time objects, so we convert them to
         # datetime objects starting from the UNIX Epoch.
-        return this.timeout - this.timein
+        return self.timeout - self.timein
 
-    def completewith(this, string):
-        this.timeout = datetime.combine(CURRENTDATE,
+    def completewith(self, string):
+        self.timeout = datetime.combine(CURRENTDATE,
             datetime.strptime(string, Workperiod.__shorttimefmt__))
 
-    def short_str(this):
-        if not this.iscomplete():
+    def short_str(self):
+        if not self.iscomplete():
             return
 
-        return "{}-{}".format(this.timein.strftime("%H:%M"),
-                              this.timeout.strftime("%H:%M"))
+        return "{}-{}".format(self.timein.strftime("%H:%M"),
+                              self.timeout.strftime("%H:%M"))
 
-    def __repr__(this):
-        return "\"" + this.__str__() + "\""
+    def __repr__(self):
+        return "\"" + self.__str__() + "\""
 
-    def __str__(this):
-        return "{}: {}-{}".format(this.timein.date(),
-                                 this.timein.strftime("%H:%M"),
-                                  this.timeout.strftime("%H:%M"))
+    def __str__(self):
+        return "{}: {}-{}".format(self.timein.date(),
+                                 self.timein.strftime("%H:%M"),
+                                  self.timeout.strftime("%H:%M"))
 
-    def __init__(this, timein, timeout = None):
-        this.timein = timein
-        this.timeout = timeout
+    def __init__(self, timein, timeout = None):
+        self.timein = timein
+        self.timeout = timeout
 
 Workperiod.__timefmt__ = "%Y-%m-%d %H:%M"
 Workperiod.__shorttimeft__ = "%H:%M"
