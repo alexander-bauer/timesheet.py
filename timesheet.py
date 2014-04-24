@@ -41,13 +41,16 @@ class Timesheet:
                 # Always append a trailing newline.
                 f.write("\n")
 
-    def workperiods_on(this, date):
-        return filter(lambda wp: wp.timein.date() == date,
+    def complete_workperiods_on(this, date):
+        # Ensure that the workperiod is both complete and for the
+        # given date.
+        return filter(lambda wp: wp.timeout and wp.timein.date() == date,
                       this.workperiods)
 
     def total_on_date(this, date):
         sumtime = timedelta()
-        for wp in this.workperiods_on(date): sumtime += wp.sumtime()
+        for wp in this.complete_workperiods_on(date):
+            sumtime += wp.sumtime()
         return sumtime
 
     def __str__(this):
@@ -59,7 +62,7 @@ class Timesheet:
             # need to strip it down again.
             curdate = (this.date + timedelta(days=offset)).date()
 
-            workperiods = this.workperiods_on(curdate)
+            workperiods = this.complete_workperiods_on(curdate)
 
             as_str_list.append("{0} {1} {2}".format(
                 curdate, this.total_on_date(curdate),
@@ -118,6 +121,10 @@ class Workperiod:
         return (this.timein != None and this.timeout != None)
 
     def sumtime(this):
+        # If the times are not both defined, return 0.
+        if not this.iscomplete():
+            return timedelta(seconds=0)
+
         # Return the difference of the times in and out. The times
         # should be pure datetime.time objects, so we convert them to
         # datetime objects starting from the UNIX Epoch.
