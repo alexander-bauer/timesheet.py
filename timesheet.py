@@ -63,11 +63,12 @@ class Timesheet:
             curdate = (this.date + timedelta(days=offset)).date()
 
             workperiods = this.complete_workperiods_on(curdate)
+            duration_formatted = ":".join(str(
+                this.total_on_date(curdate)).split(":")[0:2])
 
             as_str_list.append("{0} {1} {2}".format(
-                curdate, this.total_on_date(curdate),
+                curdate, duration_formatted,
                 " ".join([wp.short_str() for wp in workperiods])))
-
 
         return "\n".join(as_str_list)
 
@@ -135,16 +136,19 @@ class Workperiod:
             datetime.strptime(string, Workperiod.__shorttimefmt__))
 
     def short_str(this):
-        return "{}-{}".format(this.timein.time(),
-                              this.timeout.time())
+        if not this.iscomplete():
+            return
+
+        return "{}-{}".format(this.timein.strftime("%H:%M"),
+                              this.timeout.strftime("%H:%M"))
 
     def __repr__(this):
         return "\"" + this.__str__() + "\""
 
     def __str__(this):
         return "{}: {}-{}".format(this.timein.date(),
-                                 this.timein.time(),
-                                 this.timeout.time())
+                                 this.timein.strftime("%H:%M"),
+                                  this.timeout.strftime("%H:%M"))
 
     def __init__(this, timein, timeout = None):
         this.timein = timein
