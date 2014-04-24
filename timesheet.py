@@ -176,7 +176,33 @@ Workperiod.parse = parseWorkperiod
 
 def main(argc, argv):
     flags = parseflags(argv[1:])
-    
+
+    tsdate = Timesheet.latest()
+    tsfile = os.path.join(flags.file, tsdate.strftime("%Y-%m-%d"))
+    ts = Timesheet.load(tsfile)
+
+    if flags.check == CHECK_IN:
+        print "Checking in at {}".format(flags.time)
+        ts.newperiod(Workperiod.parse(flags.time))
+        ts.save(tsfile)
+
+    elif flags.check == CHECK_OUT:
+        print "Checking out at {}".format(flags.time)
+        ts.completelatestwith(flags.time)
+        ts.save(tsfile)
+
+    elif flags.check == CHECK_HIST:
+        wp = Workperiod.parse(flags.time)
+        if not wp.iscomplete():
+            print "Please give a full period in HH:MM-HH:MM format."
+            return 1
+
+        print "Entering past time: {}".format(wp.short_str())
+        ts.newperiod(Workperiod.parse(flags.time))
+        ts.save(tsfile)
+
+    elif flags.check == SHOW_READABLE:
+        print ts
 
 
 def parseflags(args):
