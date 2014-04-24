@@ -1,13 +1,11 @@
 #!/usr/bin/python
 
-import sys, argparse, os.path, json
+import sys, argparse, os.path, calendar, itertools
 from datetime import datetime, date, time, timedelta
-
 
 FILEPATH = os.path.expanduser("~/.timesheets")
 EPOCH = date(1970, 1, 1)        # UNIX EPOCH
 CURRENTDATE = datetime.now().date()
-
 
 CHECK_IN = "in"
 CHECK_OUT = "out"
@@ -52,6 +50,70 @@ class Timesheet:
         for wp in self.complete_workperiods_on(date):
             sumtime += wp.sumtime()
         return sumtime
+
+    def prettyprint(self):
+        # Keep a date to increment.
+        curdate = self.date.date()
+        for weekn in xrange(0, 2):
+            # Create a data table to print at the end. Each list
+            # within will be printed vertically
+            datatable = []
+
+            for dayn in xrange(0, 7):
+                # Column to be printed vertically
+                column = []
+
+                # First, put in the week name, starting from Sunday,
+                # which is the sixth day of the week.
+                column.append(calendar.day_name[(6 + dayn) % 7])
+
+                # Next, put in any completed workperiods, one per
+                # line.
+                for wp in self.complete_workperiods_on(curdate):
+                    column.append(wp.short_str())
+
+                # Finally, skip a line and give the total.
+                duration_formatted = ":".join(str(
+                    self.total_on_date(curdate)).split(":")[0:2])
+                column.append("")
+                column.append(duration_formatted)
+
+                # Place the column in the datatable.
+                datatable.append(column)
+
+                # Increment the date counter.
+                curdate = curdate + timedelta(days=1)
+
+            # Gather table metadata.
+
+            # Get the longest column.
+            max_column = max([len(column) for column in datatable])
+
+            # Get the widest cell, which we will use to pad. The
+            # itertools function flattens the datatable so that it's
+            # easy to search.
+            max_width = max([len(cell) for cell in
+                             list(itertools.chain(*datatable))])
+
+            col_fmt = " {: <" + str(max_width) + "} " # space pad
+
+            # Print the data table.
+
+            for rown in xrange(0, max_column):
+                # Select the entire row from the columns.
+                cells = []
+                for column in datatable:
+                    # If the column is of sufficient length, give the
+                    # data. Otherwise, skip it.
+                    if len(column) > rown:
+                        cells.append(column[rown])
+                    else:
+                        cells.append("")
+
+                print (col_fmt*7).format(*cells)
+
+            # Print a seperating newline.
+            print
 
     def __str__(self):
         as_str_list = []
@@ -206,7 +268,7 @@ def main(argc, argv):
         ts.save(tsfile)
 
     elif flags.check == SHOW_READABLE:
-        print ts
+        ts.prettyprint()
 
 
 def parseflags(args):
