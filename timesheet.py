@@ -11,6 +11,7 @@ CHECK_IN = "in"
 CHECK_OUT = "out"
 CHECK_HIST = "hist"
 SHOW_READABLE = "show"
+SHOW_PROGRAM = "list"
 
 class Timesheet:
     def completelatestwith(self, string):
@@ -270,6 +271,9 @@ def main(argc, argv):
     elif flags.check == SHOW_READABLE:
         ts.prettyprint()
 
+    elif flags.check == SHOW_PROGRAM:
+        print ts
+
 
 def parseflags(args):
     parser = argparse.ArgumentParser(description=
@@ -291,7 +295,7 @@ def parseflags(args):
     # Determine whether the type is in or out.
     parser.add_argument("check", action="store",
                         choices=[CHECK_IN, CHECK_OUT, CHECK_HIST,
-                                 SHOW_READABLE],
+                                 SHOW_READABLE, SHOW_PROGRAM],
                         help="check in or out")
 
     # Get the time at which to check in or out.
