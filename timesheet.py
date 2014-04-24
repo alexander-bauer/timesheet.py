@@ -199,7 +199,7 @@ def parseflags(args):
                         help="check in or out")
 
     # Get the time at which to check in or out.
-    parser.add_argument("time", action="store",
+    parser.add_argument("time", action="store", nargs="?",
                         default=datetime.now().strftime("%H:%M"),
                         help="time to check in or out at")
 
