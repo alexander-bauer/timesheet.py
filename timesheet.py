@@ -196,7 +196,7 @@ class Workperiod:
 
     def completewith(self, string):
         self.timeout = datetime.combine(CURRENTDATE,
-            datetime.strptime(string, Workperiod.__shorttimefmt__))
+        datetime.strptime(string, Workperiod.__shorttimefmt__).time())
 
     def short_str(self):
         if not self.iscomplete():
@@ -218,7 +218,7 @@ class Workperiod:
         self.timeout = timeout
 
 Workperiod.__timefmt__ = "%Y-%m-%d %H:%M"
-Workperiod.__shorttimeft__ = "%H:%M"
+Workperiod.__shorttimefmt__ = "%H:%M"
 
 @classmethod
 def parseWorkperiod(cls, string):
